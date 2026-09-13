@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dental Materials Exam 2 — Practice Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0c0e14;
+    --surface: #13151f;
+    --surface2: #1a1d2b;
+    --surface3: #20243a;
+    --border: #272b40;
+    --border2: #333858;
+    --accent: #6ee7b7;
+    --accent2: #818cf8;
+    --accent3: #fb923c;
+    --correct: #34d399;
+    --wrong: #f87171;
+    --text: #e2e8f8;
+    --muted: #6b7494;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  .progress-wrap {
+    height: 2px;
+    background: var(--border);
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 300;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    backdrop-filter: blur(8px);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-left h1 {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .header-left .subtitle {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .score-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .score-pill span { color: var(--accent); font-weight: 500; }
+  .reset-btn-header {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .reset-btn-header:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 24px 100px;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 56px 0 22px;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+  .section-num {
+    font-family: var(--display);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--bg);
+    background: var(--accent2);
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.01em;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 22px 26px;
+    margin-bottom: 12px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .q-card:hover { border-color: var(--border2); }
+  .q-card.answered-correct {
+    border-color: rgba(52,211,153,0.45);
+    box-shadow: 0 0 0 1px rgba(52,211,153,0.12) inset;
+  }
+  .q-card.answered-wrong {
+    border-color: rgba(248,113,113,0.45);
+    box-shadow: 0 0 0 1px rgba(248,113,113,0.1) inset;
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .q-num {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    padding: 2px 9px;
+    border-radius: 5px;
+  }
+
+  .q-text {
+    font-size: 0.93rem;
+    line-height: 1.65;
+    color: var(--text);
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 7px; }
+
+  .opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 0.87rem;
+    font-weight: 300;
+    line-height: 1.55;
+  }
+  .opt:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(110,231,183,0.06);
+  }
+  .opt:disabled { cursor: default; }
+
+  .opt-letter {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--surface3);
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.15s;
+  }
+
+  .opt.correct-ans { border-color: var(--correct) !important; background: rgba(52,211,153,0.1) !important; }
+  .opt.correct-ans .opt-letter { background: var(--correct); color: #0c0e14; }
+  .opt.wrong-ans { border-color: var(--wrong) !important; background: rgba(248,113,113,0.09) !important; }
+  .opt.wrong-ans .opt-letter { background: var(--wrong); color: #0c0e14; }
+  .opt.reveal-correct { border-color: rgba(52,211,153,0.35) !important; background: rgba(52,211,153,0.05) !important; }
+  .opt.reveal-correct .opt-letter { color: var(--correct); background: rgba(52,211,153,0.15); }
+
+  .feedback {
+    margin-top: 12px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(52,211,153,0.09); border: 1px solid rgba(52,211,153,0.28); color: #86efcb; }
+  .feedback.wrong-fb { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.24); color: #fca5a5; }
+  .feedback strong { font-weight: 500; }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .container { padding: 32px 14px 80px; }
+    .q-card { padding: 16px 16px; }
+    .header-left h1 { font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+
+<header>
+  <div class="header-left">
+    <h1>Dental Materials — Exam 2 Practice Test</h1>
+    <div class="subtitle">Cements · Impression Materials · Interim Restoratives · GIC · Photocuring · Ceramics · Adhesives · Composites</div>
+  </div>
+  <div class="score-bar">
+    <div class="score-pill">Answered: <span id="answeredCount">0</span> / <span id="totalCount">0</span></div>
+    <div class="score-pill">Score: <span id="scoreCount">0</span> correct</div>
+    <button class="reset-btn-header" onclick="resetAll()">↺ Reset</button>
+  </div>
+</header>
+
+<div class="container" id="examContainer"></div>
+
+<script>
+const sections = [
+  {
+    label: "Dental Cements",
+    questions: [
+      { id: "c01", text: "Which cement was the first dental cement to provide chemical bonding to tooth structure?", options: ["Zinc phosphate", "Zinc polycarboxylate", "Glass ionomer cement", "Resin-modified GIC"], correct: 1 },
+      { id: "c02", text: "With decreasing cement film thickness, where does failure most commonly occur?", options: ["Along cement interface", "Within the cement bulk", "At the dentin-cement interface", "Within the restoration itself"], correct: 0 },
+      { id: "c03", text: "How does zinc phosphate cement provide restoration retention?", options: ["Chemical bonding", "Mechanical retention", "Micromechanical interlocking", "Covalent adhesion"], correct: 1 },
+      { id: "c04", text: "What method of cementation minimizes cement film thickness?", options: ["Apply heavy seating pressure immediately", "Use low-viscosity cement", "Heat the cement before seating", "Seat slowly"], correct: 3 },
+      { id: "c05", text: "As cement film thickness decreases, what happens to the ability to fully seat a crown?", options: ["Increases", "Decreases", "Remains unchanged", "Becomes unpredictable"], correct: 0 },
+      { id: "c06", text: "Which material is contraindicated for use when bonding ceramic veneers?", options: ["Resin cement", "GIC", "Resin-modified GIC", "Self-adhesive resin cement"], correct: 1 },
+      { id: "c07", text: "When using an adhesive resin cement, where is a bonding agent/primer needed?", options: ["Tooth and restoration", "On the tooth only", "On the restoration only", "Neither - adhesive resin cement is self-priming"], correct: 0 },
+      { id: "c08", text: "Which restoration type is NOT an indication for using self-adhesive resin cements?", options: ["Posts", "Crowns", "Veneers", "Inlays"], correct: 2 },
+      { id: "c09", text: "What reaction mechanism is involved with the setting of dental cements?", options: ["Acid-base reaction", "Free radical polymerization", "Condensation polymerization", "Ionic cross-linking"], correct: 0 },
+      { id: "c10", text: "Which of the following is NOT a disadvantage of eugenol-containing cement when used with resin-based provisionals?", options: ["Inhibition of resin polymerization", "Softening of provisional material", "Obtundent effect", "Reduced bond strength of final cement"], correct: 2 },
+    ]
+  },
+  {
+    label: "Impression Materials",
+    questions: [
+      { id: "im01", text: "Which impression material is naturally hydrophilic?", options: ["Polyvinyl siloxane", "Polysulfide", "Polyether", "Addition silicone"], correct: 2 },
+      { id: "im02", text: "What impression viscosity is used for syringe or wash applications?", options: ["Low", "Putty (very high)", "Medium", "High"], correct: 0 },
+      { id: "im03", text: "What is a clinical example of shear thinning of an impression material?", options: ["Material extruded from a syringe", "Mixing putty by hand", "Traying a set impression", "Removing a set impression tray"], correct: 0 },
+      { id: "im04", text: "Which viscosity classification describes putty on a surface?", options: ["Low", "Medium", "High", "Putty (very high)"], correct: 3 },
+      { id: "im05", text: "What test is used to measure the wettability of a fluid on a surface?", options: ["Contact angle", "Film thickness test", "Surface energy assay", "Viscosity index"], correct: 0 },
+      { id: "im06", text: "Which impression material utilizes a palladium catalyst?", options: ["Polyether", "Polysulfide", "Polyvinyl siloxane", "Condensation silicone"], correct: 2 },
+      { id: "im07", text: "What is the effect of shear thinning on a material?", options: ["Viscosity increase", "Viscosity decrease", "Density increase", "Setting time extension"], correct: 1 },
+      { id: "im08", text: "What is the effect of adding surfactant to PVS impression material?", options: ["Increase contact angle", "Decrease contact angle", "Increase viscosity", "Accelerate setting"], correct: 1 },
+      { id: "im09", text: "Under what condition do viscoelastic impression materials behave more like solids?", options: ["Low stress rates", "High stress rates", "Elevated temperature", "Extended working time"], correct: 1 },
+      { id: "im10", text: "What type of fluid becomes more viscous with increased shearing rate?", options: ["Pseudoplastic", "Newtonian", "Thixotropic", "Dilatant"], correct: 3 },
+      { id: "im11", text: "In the specification test method, what event marks the end of working time?", options: ["Color change", "Exotherm rise", "Snap set", "Viscosity plateau"], correct: 1 },
+    ]
+  },
+  {
+    label: "Interim Restoratives",
+    questions: [
+      { id: "ir01", text: "What are the two general milled interim material classifications?", options: ["Bis-acryl and PMMA based", "PMMA based and Composite based", "Composite based and Glass ionomer based", "Bis-GMA and urethane based"], correct: 1 },
+      { id: "ir02", text: "What characteristic of bis-acryl provisionals contributes to difficulty in repairing them?", options: ["High polymerization shrinkage", "High water absorption", "Low flexural strength", "Brittleness"], correct: 3 },
+      { id: "ir03", text: "Which interim material ranks highest in fracture toughness?", options: ["Milled composite", "P/L PMMA", "Bis-acryl", "Denture acrylic"], correct: 3 },
+      { id: "ir04", text: "Which interim milled material provides the greatest intraoral durability, up to 3 years?", options: ["Denture acrylic", "P/L PMMA", "Milled composite", "Bis-acryl"], correct: 2 },
+      { id: "ir05", text: "What process helps decrease residual monomer from an interim restoration over time?", options: ["Heat treatment", "Water storage", "Additional light curing", "Diffusion"], correct: 3 },
+      { id: "ir06", text: "Which interim restorative fabrication group has the greatest surface roughness?", options: ["Milled composite", "P/L PMMA", "Bis-acryl", "Conventional P/L"], correct: 3 },
+      { id: "ir07", text: "What component is copolymerized with urethane composite to increase toughness in a class of interim restoratives?", options: ["Glass fiber", "Rubber", "Carbon fiber", "Zirconia particles"], correct: 1 },
+      { id: "ir08", text: "Which interim material has the highest residual monomer content?", options: ["Milled composite", "Denture acrylic", "P/L PMMA", "Bis-acryl"], correct: 2 },
+      { id: "ir09", text: "Which material classification has the highest flexural strength?", options: ["PMMA", "Glass ionomer", "Composite", "Bis-acryl"], correct: 2 },
+    ]
+  },
+  {
+    label: "Glass Ionomer & Related Materials",
+    questions: [
+      { id: "gi01", text: "Glass ionomer cement arises from combining which two materials?", options: ["Polycarboxylate and silicate cements", "Zinc phosphate and silicate cements", "Zinc oxide eugenol and polycarboxylate cements", "Resin composite and polycarboxylate cements"], correct: 0 },
+      { id: "gi02", text: "What is a characteristic feature of a Giomer restorative material?", options: ["Contains fluoride-releasing glass only", "Has a full GI setting reaction", "No GI setting reaction", "Is purely light-cured"], correct: 2 },
+      { id: "gi03", text: "How long after initial glass ionomer placement has 50% of the surface fluoride leached out?", options: ["2 days", "12 hours", "1 day", "1 week"], correct: 0 },
+      { id: "gi04", text: "What acid is used for dentin conditioning prior to GIC placement?", options: ["Phosphoric acid", "Citric acid", "Polyacrylic acid", "Maleic acid"], correct: 2 },
+      { id: "gi05", text: "What contents in glass ionomers are considered the base component?", options: ["Liquid (polyacrylic acid)", "Water", "Powder", "Fluoride salts"], correct: 2 },
+      { id: "gi06", text: "What is the ADA classification of glass ionomers used as luting agents?", options: ["Type 2", "Type 1", "Type 3", "Type 4"], correct: 1 },
+      { id: "gi07", text: "Compared to resin composite, what is the bond strength and mode of failure of glass ionomer?", options: ["Lower bond adhesive failure", "Higher bond cohesive failure", "Similar bond adhesive failure", "Higher bond adhesive failure"], correct: 0 },
+      { id: "gi08", text: "Which of the following is NOT a feature of compomer restorations?", options: ["Fluoride release", "Simplified placement", "Moisture tolerance", "Strong tooth bonding"], correct: 3 },
+      { id: "gi09", text: "What is essential for developing a glass ionomer setting reaction?", options: ["Light activation", "Water", "Heat", "Phosphoric acid etching"], correct: 1 },
+      { id: "gi10", text: "Which preparation type is usually NOT advocated for glass ionomer placement?", options: ["Class I", "Class II", "Class V", "Class III"], correct: 1 },
+    ]
+  },
+  {
+    label: "Photocuring",
+    questions: [
+      { id: "ph01", text: "What wavelength range (nm) is used for dental photocuring?", options: ["400-500", "300-400", "500-600", "600-700"], correct: 0 },
+      { id: "ph02", text: "If incident irradiance is half of the exitance irradiance, what modification to exposure duration is needed?", options: ["Half as long", "The same duration", "Four times as long", "Twice as long"], correct: 3 },
+      { id: "ph03", text: "What interaction between photons and a photoinitiator activates the initiator?", options: ["Thermal energy transfer", "Ion exchange", "Electron level changes", "Free radical donation"], correct: 2 },
+      { id: "ph04", text: "What is the potential damage to the human eye from excessive exposure to blue light during photocuring?", options: ["Cataracts", "Retinal burning", "Corneal abrasion", "Macular degeneration"], correct: 1 },
+      { id: "ph05", text: "When using a rubber dam during photocuring, what is the significance regarding photo-thermal damage to underlying mucosa?", options: ["Rubber dam prevents all light transmission", "Rubber dam has no effect on thermal transfer", "Short exposure ok", "Mucosa must be anesthetized regardless"], correct: 2 },
+      { id: "ph06", text: "What occurs during the dark cure phase of photopolymerization of a dental restorative resin?", options: ["Primary polymerization", "Color stabilization", "Additional shrinkage", "Oxygen inhibition layer formation"], correct: 2 },
+      { id: "ph07", text: "What principle describes anticipating similar monomer conversion when using a high-intensity light for a short exposure or a low-intensity light for a long exposure?", options: ["Reciprocal inhibition", "Dose equivalence", "Irradiance compensation", "Energy reciprocity"], correct: 3 },
+      { id: "ph08", text: "What treatment is advocated for a light curing unit covered by a clear plastic barrier when decommissioning the operatory?", options: ["Disinfectant wipe", "Autoclave sterilization", "UV disinfection", "Disposal of the unit"], correct: 0 },
+      { id: "ph09", text: "What term describes the radiance of a dental light curing unit?", options: ["Emitted power/unit area", "Joules per second", "Lumens per steradian", "Irradiance coefficient"], correct: 0 },
+      { id: "ph10", text: "Which light color has the deepest penetration ability into a dental resin composite material?", options: ["Red", "Blue", "Green", "Violet"], correct: 1 },
+    ]
+  },
+  {
+    label: "Dental Ceramics",
+    questions: [
+      { id: "ce01", text: "Which crowns can be made of leucite-reinforced ceramics?", options: ["Posterior", "Full-arch", "Implant-supported", "Anterior"], correct: 3 },
+      { id: "ce02", text: "Which ceramics are sensitive to etching and silanization?", options: ["Glass ceramics", "Zirconia", "Alumina", "Polycrystalline ceramics"], correct: 0 },
+      { id: "ce03", text: "What is applied to create a smooth, glassy layer on a ceramic surface?", options: ["Silane", "Stain", "Glaze", "Fluoride coating"], correct: 2 },
+      { id: "ce04", text: "What phase does zirconia transform into from tetragonal?", options: ["Cubic", "Amorphous", "Monoclinic", "Monolithic"], correct: 3 },
+      { id: "ce05", text: "Which zirconia crystal structure has higher translucency?", options: ["Tetragonal", "Monoclinic", "Monolithic", "Cubic"], correct: 3 },
+      { id: "ce06", text: "Which ceramic fabrication method is similar to the lost-wax technique for casting?", options: ["CAD/CAM milling", "Slip casting", "Hot pressed", "Sintering"], correct: 2 },
+      { id: "ce07", text: "Which ceramic has the highest flexural strength?", options: ["Zirconia", "Feldspathic", "Leucite-reinforced", "Glass ceramic"], correct: 0 },
+      { id: "ce08", text: "Which ceramic has the highest translucency?", options: ["Zirconia", "Alumina", "Lithium disilicate", "Feldspathic"], correct: 3 },
+      { id: "ce09", text: "Which structure increases mechanical strength but reduces translucency in ceramics?", options: ["Glassy phase", "Crystalline structure", "Amorphous matrix", "Leucite network"], correct: 1 },
+      { id: "ce10", text: "What microhardness test is used for dental ceramics?", options: ["Knoop", "Vickers", "Brinell", "Rockwell"], correct: 0 },
+    ]
+  },
+  {
+    label: "Adhesives & Bonding",
+    questions: [
+      { id: "ad01", text: "What solution is used to prepare dentin to receive the hydrophobic adhesive (acts like soap)?", options: ["Etchant", "Conditioner", "Primer", "Adhesive resin"], correct: 2 },
+      { id: "ad02", text: "Which substrate should NOT be etched when using self-etching systems?", options: ["Enamel", "Cementum", "Dentin", "Composite"], correct: 2 },
+      { id: "ad03", text: "Which portion of dentin is responsible for the majority of bond strength?", options: ["Intertubular", "Peritubular", "Intratubular", "Predentin"], correct: 0 },
+      { id: "ad04", text: "Which substrate SHOULD be etched when using self-etch systems?", options: ["Dentin", "Enamel", "Exposed root surface", "Cementum"], correct: 1 },
+      { id: "ad05", text: "Which classification of bonded restoration is most likely to demonstrate post-insertion sensitivity?", options: ["Class II", "Class III", "Class V", "Class I"], correct: 3 },
+      { id: "ad06", text: "For how many seconds should enamel be etched?", options: ["15 sec", "30 sec", "60 sec", "45 sec"], correct: 1 },
+      { id: "ad07", text: "What interaction between surface energy (SE) and surface tension (ST) results in a low contact angle?", options: ["SE lower than ST", "SE higher than ST", "SE equal to ST", "ST independent of SE"], correct: 1 },
+      { id: "ad08", text: "Which adhesive systems can be used to treat indirect restorative surfaces?", options: ["Seventh generation", "Self-etch only", "Universal", "Total-etch only"], correct: 2 },
+      { id: "ad09", text: "Which generation of adhesive is equivalent to the total-etch 3-steps technique?", options: ["Third", "Fifth", "Fourth", "Sixth"], correct: 2 },
+      { id: "ad10", text: "How should dentin be kept after acid etching when using the total-etch system?", options: ["Dry", "Saturated with water", "Blot dried until chalky", "Moist"], correct: 3 },
+      { id: "ad11", text: "What is the next step after alumina air abrasion of a glass ceramic intaglio surface?", options: ["HF application", "Silane application", "Adhesive resin application", "Sandblasting"], correct: 0 },
+      { id: "ad12", text: "What is the best protocol for optimizing micromechanical retention of a ceramic restoration?", options: ["Silane coupling only", "Air abrasion alone", "HF etching alone", "Retentive preparation"], correct: 3 },
+      { id: "ad13", text: "A repaired composite restoration obtains what percent of the strength of the original unbroken composite?", options: ["70-90%", "50-70%", "80-100%", "20-50%"], correct: 3 },
+      { id: "ad14", text: "Besides micromechanical retention, what is the primary retentive aspect (chemical bonding) of a denture repair material to a conventional heat-cured or 3D milled denture base?", options: ["Ionic bonding", "Van der Waals forces", "Hydrogen bonding", "Covalent C=C bonding"], correct: 3 },
+      { id: "ad15", text: "What is a disadvantage of Al2O3 air abrasion of metal surfaces with respect to micromechanical retention?", options: ["No undercuts", "Reduces surface area", "Creates micro-cracks", "Increases contamination risk"], correct: 0 },
+      { id: "ad16", text: "Besides micromechanical retention, what is the primary retentive aspect (polymer network) of a denture repair material to a conventional heat-cured or 3D milled denture base?", options: ["Cross-linking of polyacrylic chains", "Ionic bonding to metal oxide layer", "Formation of IPNs", "Silane coupling"], correct: 2 },
+      { id: "ad17", text: "Which of the following is NOT a possible chemical bonding method of resin to a metal surface?", options: ["Metal primers", "Thione-based adhesives", "Direct methacrylate bonding", "Oxidation of metal surface"], correct: 2 },
+      { id: "ad18", text: "Which stage of the silane reaction is responsible for forming a chemical bond to a glass-containing surface?", options: ["Hydrolysis", "Condensation", "Activation", "Polymerization"], correct: 1 },
+      { id: "ad19", text: "What process maximizes silane bonding to a glass-containing surface?", options: ["Cold air drying", "Hot pressed firing", "Ultrasonic agitation", "Warm air-drying"], correct: 3 },
+      { id: "ad20", text: "What is a characteristic of one-bottle silane products?", options: ["Pre-activated", "Requires mixing before use", "Must be activated chairside", "Contains no coupling agent"], correct: 0 },
+    ]
+  },
+  {
+    label: "Resin Composites",
+    questions: [
+      { id: "rc01", text: "Which of the following is NOT a defined component of a dental resin composite system?", options: ["Filler particles", "Light-curable phase", "Coupling agent", "Resin matrix"], correct: 1 },
+      { id: "rc02", text: "What mechanism does Omnichroma use to provide the illusion of a wide range of color matching?", options: ["Chameleon effect via translucency", "Pigment blending technology", "Fluorescence modulation", "Structural color effect"], correct: 3 },
+      { id: "rc03", text: "Which composite characteristic is most useful for indicating potential physical and esthetic properties?", options: ["Resin matrix composition", "Filler particle size", "Shade range", "Volumetric filler content"], correct: 3 },
+      { id: "rc04", text: "What is the recommended increment thickness for Harmonize dentin shades?", options: ["2.0 mm", "1.5 mm", "1.0 mm", "2.5 mm"], correct: 1 },
+      { id: "rc05", text: "Which resin composite classification demonstrates the lowest content of filler by tooth weight and volume percent?", options: ["Nanofill", "Microfill", "Packable", "Nanohybrid"], correct: 1 },
+      { id: "rc06", text: "What is an advantage of using an indirect composite restoration over direct placement?", options: ["Lower cost", "Faster placement", "Enhanced interproximal features", "No need for adhesive"], correct: 2 },
+      { id: "rc07", text: "Which of the following is NOT a function of flowable composite?", options: ["Stress-breaker", "Liner under composite", "Pit and fissure sealant", "Cervical restorations"], correct: 0 },
+      { id: "rc08", text: "What is the maximum enamel defect depth for repair using the resin infiltration method?", options: ["1.0 mm", "0.5 mm", "2.0 mm", "0.25 mm"], correct: 1 },
+      { id: "rc09", text: "Which resin composite type is designed to increase the potential for interproximal contacts in posterior restorations?", options: ["Packable", "Flowable", "Microfill", "Nanohybrid"], correct: 0 },
+      { id: "rc10", text: "What is the classification of a resin composite containing a mixture of nano-filled and submicron hybrid particles?", options: ["Nanohybrid", "Microfill", "Nanofill", "Packable"], correct: 0 },
+    ]
+  },
+];
+
+let answered = {};
+let scores = { correct: 0, total: 0 };
+
+function buildExam() {
+  const container = document.getElementById('examContainer');
+  container.innerHTML = '';
+  let totalQ = 0;
+
+  sections.forEach((section, si) => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'section-label';
+
+    const secNum = document.createElement('span');
+    secNum.className = 'section-num';
+    secNum.textContent = `Set ${si + 1}`;
+
+    const secTitle = document.createElement('span');
+    secTitle.className = 'section-title';
+    secTitle.textContent = section.label;
+
+    const secLine = document.createElement('div');
+    secLine.className = 'section-line';
+
+    secDiv.appendChild(secNum);
+    secDiv.appendChild(secTitle);
+    secDiv.appendChild(secLine);
+    container.appendChild(secDiv);
+
+    section.questions.forEach((q) => {
+      totalQ++;
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      card.id = 'card-' + q.id;
+
+      const meta = document.createElement('div');
+      meta.className = 'q-meta';
+      const num = document.createElement('span');
+      num.className = 'q-num';
+      num.textContent = 'Q' + totalQ;
+      meta.appendChild(num);
+      card.appendChild(meta);
+
+      const qText = document.createElement('div');
+      qText.className = 'q-text';
+      qText.textContent = q.text;
+      card.appendChild(qText);
+
+      const optWrap = document.createElement('div');
+      optWrap.className = 'options';
+      const letters = ['A','B','C','D'];
+
+      q.options.forEach((opt, oi) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.id = 'opt-' + q.id + '-' + oi;
+        btn.innerHTML = `<span class="opt-letter">${letters[oi]}</span><span>${opt}</span>`;
+        btn.addEventListener('click', () => answerQ(q, oi));
+        optWrap.appendChild(btn);
+      });
+
+      card.appendChild(optWrap);
+
+      const feedback = document.createElement('div');
+      feedback.className = 'feedback';
+      feedback.id = 'fb-' + q.id;
+      card.appendChild(feedback);
+
+      container.appendChild(card);
+    });
+  });
+
+  document.getElementById('totalCount').textContent = totalQ;
+  scores.total = totalQ;
+  updateProgress();
+}
+
+function answerQ(q, chosen) {
+  if (answered[q.id]) return;
+  answered[q.id] = true;
+  const isCorrect = chosen === q.correct;
+  if (isCorrect) scores.correct++;
+
+  const card = document.getElementById('card-' + q.id);
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  q.options.forEach((_, oi) => {
+    const btn = document.getElementById('opt-' + q.id + '-' + oi);
+    btn.disabled = true;
+    if (oi === q.correct) {
+      btn.classList.add(oi === chosen ? 'correct-ans' : 'reveal-correct');
+    } else if (oi === chosen && !isCorrect) {
+      btn.classList.add('wrong-ans');
+    }
+  });
+
+  const fb = document.getElementById('fb-' + q.id);
+  const correctLetter = letters[q.correct];
+  const correctText = q.options[q.correct];
+  if (isCorrect) {
+    fb.className = 'feedback correct-fb show';
+    fb.innerHTML = `<strong>✓ Correct!</strong> <strong>${correctLetter}. ${correctText}</strong>`;
+  } else {
+    fb.className = 'feedback wrong-fb show';
+    fb.innerHTML = `<strong>✗ Incorrect.</strong> The answer is <strong>${correctLetter}. ${correctText}</strong>`;
+  }
+
+  updateStats();
+}
+
+const letters = ['A','B','C','D'];
+
+function updateStats() {
+  document.getElementById('answeredCount').textContent = Object.keys(answered).length;
+  document.getElementById('scoreCount').textContent = scores.correct;
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = scores.total ? (Object.keys(answered).length / scores.total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function resetAll() {
+  answered = {};
+  scores.correct = 0;
+  updateStats();
+  buildExam();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+buildExam();
+</script>
+</body>
+</html>
